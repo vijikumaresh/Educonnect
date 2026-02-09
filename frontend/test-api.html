@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>EduConnect API Test</h1>
+    
+    <h2>1. Login</h2>
+    <input type="text" id="username" placeholder="Username" value="testuser">
+    <input type="password" id="password" placeholder="Password" value="testpass123">
+    <button onclick="login()">Login</button>
+    <div id="loginResult"></div>
+    
+    <h2>2. Create Student</h2>
+    <button onclick="createStudent()">Create Test Student</button>
+    <div id="createResult"></div>
+    
+    <h2>3. Get Students</h2>
+    <button onclick="getStudents()">Get All Students</button>
+    <div id="getResult"></div>
+    
+    <h2>Console Log</h2>
+    <pre id="console"></pre>
+
+    <script>
+        let token = localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).token : null;
+        
+        function log(msg) {
+            console.log(msg);
+            document.getElementById('console').textContent += msg + '\n';
+        }
+        
+        async function login() {
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                
+                const data = await response.json();
+                log('Login response: ' + JSON.stringify(data));
+                
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('currentUser', JSON.stringify(data));
+                    document.getElementById('loginResult').innerHTML = '<span style="color:green">✓ Logged in as ' + data.username + '</span>';
+                } else {
+                    document.getElementById('loginResult').innerHTML = '<span style="color:red">✗ ' + (data.error || 'Login failed') + '</span>';
+                }
+            } catch (error) {
+                log('Login error: ' + error);
+                document.getElementById('loginResult').innerHTML = '<span style="color:red">✗ ' + error.message + '</span>';
+            }
+        }
+        
+        async function createStudent() {
+            if (!token) {
+                document.getElementById('createResult').innerHTML = '<span style="color:red">Please login first</span>';
+                return;
+            }
+            
+            try {
+                const studentData = {
+                    name: "Test Student " + Date.now(),
+                    phone: "9876543210",
+                    email: "test" + Date.now() + "@example.com",
+                    college_name: "Test College",
+                    address: "123 Test Street",
+                    exam_preferences: ["UPSC", "TNPSC"],
+                    folder_id: null,
+                    registration_date: "2026-02-09"
+                };
+                
+                log('Creating student: ' + JSON.stringify(studentData));
+                
+                const response = await fetch('http://localhost:8080/api/students', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                
+                const data = await response.json();
+                log('Create response: ' + JSON.stringify(data));
+                
+                if (response.ok) {
+                    document.getElementById('createResult').innerHTML = '<span style="color:green">✓ Student created: ' + data.name + ' (ID: ' + data.id + ')</span>';
+                } else {
+                    document.getElementById('createResult').innerHTML = '<span style="color:red">✗ ' + (data.error || 'Failed') + '</span>';
+                }
+            } catch (error) {
+                log('Create error: ' + error);
+                document.getElementById('createResult').innerHTML = '<span style="color:red">✗ ' + error.message + '</span>';
+            }
+        }
+        
+        async function getStudents() {
+            if (!token) {
+                document.getElementById('getResult').innerHTML = '<span style="color:red">Please login first</span>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/students', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                const data = await response.json();
+                log('Get students response: ' + JSON.stringify(data));
+                
+                if (response.ok) {
+                    document.getElementById('getResult').innerHTML = '<span style="color:green">✓ Found ' + data.length + ' students</span><br><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    document.getElementById('getResult').innerHTML = '<span style="color:red">✗ ' + (data.error || 'Failed') + '</span>';
+                }
+            } catch (error) {
+                log('Get error: ' + error);
+                document.getElementById('getResult').innerHTML = '<span style="color:red">✗ ' + error.message + '</span>';
+            }
+        }
+        
+        // Check if already logged in
+        if (token) {
+            log('Found existing token in localStorage');
+            document.getElementById('loginResult').innerHTML = '<span style="color:blue">Using stored credentials</span>';
+        }
+    </script>
+</body>
+</html>
+

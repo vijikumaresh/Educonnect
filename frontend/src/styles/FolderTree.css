@@ -1,0 +1,202 @@
+.folder-tree {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.folder-node {
+  margin-bottom: 2px;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+  gap: 8px;
+}
+
+.folder-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.folder-item.selected {
+  background-color: #dbeafe;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.folder-item.root-item {
+  margin-bottom: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.folder-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.expand-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.expand-icon:hover {
+  color: var(--text-primary);
+}
+
+.folder-spacer {
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.folder-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.folder-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.folder-menu-btn {
+  opacity: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 16px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.folder-item:hover .folder-menu-btn {
+  opacity: 1;
+}
+
+.folder-menu-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.folder-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  min-width: 150px;
+  margin-top: 4px;
+}
+
+.folder-menu button {
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
+
+.folder-menu button:hover {
+  background-color: var(--bg-hover);
+}
+
+.folder-menu button.delete {
+  color: var(--danger-color);
+}
+
+.folder-menu button.delete:hover {
+  background-color: #fee2e2;
+}
+
+.context-menu {
+  position: fixed;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 180px;
+  padding: 4px 0;
+  animation: contextMenuFadeIn 0.15s ease;
+}
+
+@keyframes contextMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.context-menu button {
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.context-menu button:hover {
+  background-color: var(--bg-hover);
+}
+
+.context-menu button.delete {
+  color: var(--danger-color);
+}
+
+.context-menu button.delete:hover {
+  background-color: #fee2e2;
+}
+
+.folder-children {
+  margin-left: 20px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .folder-children {
+    margin-left: 12px;
+  }
+}
+

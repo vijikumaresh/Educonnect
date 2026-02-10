@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Student } from '../types';
+import { Student, ExamPreference } from '../types';
 import '../styles/StudentTable.css';
 
 interface StudentTableProps {
@@ -42,8 +42,8 @@ const StudentTable: React.FC<StudentTableProps> = ({ students, onEdit, onDelete 
 
     // Sort
     filtered.sort((a, b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
+      let aVal: string | number | Date | ExamPreference[] | null | undefined = a[sortField];
+      let bVal: string | number | Date | ExamPreference[] | null | undefined = b[sortField];
 
       if (sortField === 'created_at') {
         aVal = new Date(aVal as string).getTime();

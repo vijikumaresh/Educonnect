@@ -7,6 +7,7 @@ import StudentTable from '../components/StudentTable';
 import SubfolderDashboard from '../components/SubfolderDashboard';
 import FolderMoveModal from '../components/FolderMoveModal';
 import Breadcrumbs from '../components/Breadcrumbs';
+import ActivityManager from '../components/ActivityManager';
 import { Student, Folder } from '../types';
 import { foldersAPI, studentsAPI } from '../services/api';
 import '../styles/Dashboard.css';
@@ -22,6 +23,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [movingFolder, setMovingFolder] = useState<Folder | null>(null);
+  const [showActivities, setShowActivities] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -216,7 +218,7 @@ const Dashboard: React.FC = () => {
 
   const filteredStudents = selectedFolderId
     ? students.filter(s => s.folder_id === selectedFolderId)
-    : students.filter(s => !s.folder_id);
+    : students; // Show ALL students when no folder is selected
 
   // Get subfolders of the selected folder
   const selectedFolder = selectedFolderId ? folders.find(f => f.id === selectedFolderId) : null;
@@ -249,14 +251,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="header-left">
-          <img 
-            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjI1MCIgY3k9IjE3NSIgcj0iOTAiIHN0cm9rZT0iIzJENUJBRCIgc3Ryb2tlLXdpZHRoPSIzMCIgZmlsbD0ibm9uZSIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSIzMjUiIHI9IjkwIiBzdHJva2U9IiMyRDVCQUQiIHN0cm9rZS13aWR0aD0iMzAiIGZpbGw9Im5vbmUiLz4KPGNpcmNsZSBjeD0iMzUwIiBjeT0iMzI1IiByPSI5MCIgc3Ryb2tlPSIjMkQ1QkFEIiBzdHJva2Utd2lkdGg9IjMwIiBmaWxsPSJub25lIi8+Cjxwb2x5Z29uIHBvaW50cz0iMjUwLDE5MCAyMDAsMjkwIDMwMCwyOTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0VENzkyRCIgc3Ryb2tlLXdpZHRoPSIyNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=" 
-            alt="Logo" 
-            className="dashboard-logo"
-          />
-          <h1 className="company-name">ONE27 Educational Services Private Limited</h1>
-        </div>
+        <h1 className="company-name">ONE27 Educational Services Private Limited</h1>
         <div className="header-actions">
           <span className="welcome-text">Welcome, {user?.username}</span>
           <button onClick={handleLogout} className="logout-button">
@@ -314,9 +309,14 @@ const Dashboard: React.FC = () => {
                   : ''
               }
             />
+          ) : showActivities && selectedFolderId ? (
+            <ActivityManager
+              folderId={selectedFolderId}
+              folderName={folders.find(f => f.id === selectedFolderId)?.name || 'Folder'}
+            />
           ) : showSubfolderDashboard ? (
             <SubfolderDashboard
-              parentFolder={selectedFolder}
+              parentFolder={selectedFolder || null}
               subfolders={subfolders}
               studentCounts={studentCounts}
               onFolderClick={setSelectedFolderId}
@@ -334,10 +334,22 @@ const Dashboard: React.FC = () => {
                   </h2>
                   <p className="student-count">{filteredStudents.length} students</p>
                 </div>
-                <button className="add-contact-btn" onClick={handleAddContact}>
-                  <span className="btn-icon">+</span>
-                  Add Contact
-                </button>
+                <div className="header-actions-group">
+                  {selectedFolderId && (
+                    <button 
+                      className="activity-btn" 
+                      onClick={() => setShowActivities(!showActivities)}
+                      title="Manage Activities"
+                    >
+                      <span className="btn-icon">📊</span>
+                      Activities
+                    </button>
+                  )}
+                  <button className="add-contact-btn" onClick={handleAddContact}>
+                    <span className="btn-icon">+</span>
+                    Add Contact
+                  </button>
+                </div>
               </div>
               <StudentTable
                 students={filteredStudents}

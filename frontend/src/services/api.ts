@@ -1,4 +1,4 @@
-import { Student, Folder, ExamPreference } from '../types';
+import { Student, Folder, ExamPreference, Seminar, RecruitmentDrive, BookOrder } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -165,4 +165,198 @@ export const studentsAPI = {
   }
 };
 
+// Seminars API
+export const seminarsAPI = {
+  getAll: async (): Promise<Seminar[]> => {
+    const response = await fetch(`${API_BASE_URL}/seminars`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch seminars');
+    return response.json();
+  },
+
+  getByFolder: async (folderId: string): Promise<Seminar[]> => {
+    const response = await fetch(`${API_BASE_URL}/seminars/folder/${folderId}`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch seminars');
+    return response.json();
+  },
+
+  create: async (seminar: {
+    title: string;
+    topic: string;
+    participants_count: number;
+    seminar_date: string;
+    description?: string;
+    folder_id: string;
+  }): Promise<Seminar> => {
+    const response = await fetch(`${API_BASE_URL}/seminars`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(seminar)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create seminar');
+    }
+    return response.json();
+  },
+
+  update: async (id: string, seminar: {
+    title: string;
+    topic: string;
+    participants_count: number;
+    seminar_date: string;
+    description?: string;
+  }): Promise<Seminar> => {
+    const response = await fetch(`${API_BASE_URL}/seminars/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(seminar)
+    });
+    if (!response.ok) throw new Error('Failed to update seminar');
+    return response.json();
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/seminars/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to delete seminar');
+  }
+};
+
+// Recruitment API
+export const recruitmentAPI = {
+  getAll: async (): Promise<RecruitmentDrive[]> => {
+    const response = await fetch(`${API_BASE_URL}/recruitment`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch recruitment drives');
+    return response.json();
+  },
+
+  getByFolder: async (folderId: string): Promise<RecruitmentDrive[]> => {
+    const response = await fetch(`${API_BASE_URL}/recruitment/folder/${folderId}`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch recruitment drives');
+    return response.json();
+  },
+
+  create: async (drive: {
+    company_name: string;
+    drive_date: string;
+    participants_count: number;
+    selected_count: number;
+    job_role?: string;
+    description?: string;
+    folder_id: string;
+  }): Promise<RecruitmentDrive> => {
+    const response = await fetch(`${API_BASE_URL}/recruitment`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(drive)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create recruitment drive');
+    }
+    return response.json();
+  },
+
+  update: async (id: string, drive: {
+    company_name: string;
+    drive_date: string;
+    participants_count: number;
+    selected_count: number;
+    job_role?: string;
+    description?: string;
+  }): Promise<RecruitmentDrive> => {
+    const response = await fetch(`${API_BASE_URL}/recruitment/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(drive)
+    });
+    if (!response.ok) throw new Error('Failed to update recruitment drive');
+    return response.json();
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/recruitment/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to delete recruitment drive');
+  }
+};
+
+// Book Orders API
+export const bookOrdersAPI = {
+  getAll: async (): Promise<BookOrder[]> => {
+    const response = await fetch(`${API_BASE_URL}/book-orders`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch book orders');
+    return response.json();
+  },
+
+  getByFolder: async (folderId: string): Promise<BookOrder[]> => {
+    const response = await fetch(`${API_BASE_URL}/book-orders/folder/${folderId}`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch book orders');
+    return response.json();
+  },
+
+  create: async (order: {
+    book_title: string;
+    author?: string;
+    academic_session: string;
+    quantity: number;
+    order_date: string;
+    student_name?: string;
+    notes?: string;
+    folder_id: string;
+  }): Promise<BookOrder> => {
+    const response = await fetch(`${API_BASE_URL}/book-orders`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(order)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create book order');
+    }
+    return response.json();
+  },
+
+  update: async (id: string, order: {
+    book_title: string;
+    author?: string;
+    academic_session: string;
+    quantity: number;
+    order_date: string;
+    student_name?: string;
+    notes?: string;
+  }): Promise<BookOrder> => {
+    const response = await fetch(`${API_BASE_URL}/book-orders/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(order)
+    });
+    if (!response.ok) throw new Error('Failed to update book order');
+    return response.json();
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/book-orders/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to delete book order');
+  }
+};
 

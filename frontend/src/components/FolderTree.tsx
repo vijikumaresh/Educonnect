@@ -145,6 +145,7 @@ const FolderNode: React.FC<FolderNodeProps> = ({
             <FolderTreeNode
               key={subFolder.id}
               folder={subFolder}
+              subFolders={allFolders.filter(f => f.parent_id === subFolder.id)}
               allFolders={allFolders}
               isSelected={isSelected}
               onSelect={onSelect}

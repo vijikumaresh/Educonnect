@@ -26,3 +26,52 @@ export interface User {
   token?: string;
 }
 
+// Activity Management Types
+
+export interface Seminar {
+  id: string;
+  title: string;
+  topic: string;
+  participants_count: number;
+  seminar_date: string;
+  description?: string;
+  folder_id: string;
+  created_at: Date | string;
+}
+
+export interface RecruitmentDrive {
+  id: string;
+  company_name: string;
+  drive_date: string;
+  participants_count: number;
+  selected_count: number;
+  job_role?: string;
+  description?: string;
+  folder_id: string;
+  created_at: Date | string;
+}
+
+export interface BookOrder {
+  id: string;
+  book_title: string;
+  author?: string;
+  academic_session: string;
+  quantity: number;
+  order_date: string;
+  student_name?: string;
+  notes?: string;
+  folder_id: string;
+  created_at: Date | string;
+}
+
+export type ActivityType = 'seminars' | 'recruitment' | 'books';
+
+export interface ActivitySummary {
+  seminarsCount: number;
+  recruitmentCount: number;
+  booksCount: number;
+  totalParticipants: number;
+  totalSelected: number;
+  totalBooksOrdered: number;
+}
+

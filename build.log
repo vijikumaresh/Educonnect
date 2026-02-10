@@ -1,0 +1,94 @@
+🐳 Building and Pushing Educonnect Docker Images
+==================================================
+
+📦 Step 1: Building images...
+
+  🔨 Building backend...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  232.4kB
+Step 1/15 : FROM rust:1.83 as builder
+1.83: Pulling from library/rust
+0a96bdb82805: Pulling fs layer
+54c7be425079: Pulling fs layer
+7aa8176e6d89: Pulling fs layer
+1523f4b3f560: Pulling fs layer
+38d98af84437: Pulling fs layer
+1523f4b3f560: Waiting
+38d98af84437: Waiting
+54c7be425079: Verifying Checksum
+54c7be425079: Download complete
+7aa8176e6d89: Verifying Checksum
+7aa8176e6d89: Download complete
+0a96bdb82805: Verifying Checksum
+0a96bdb82805: Download complete
+0a96bdb82805: Pull complete
+54c7be425079: Pull complete
+7aa8176e6d89: Pull complete
+38d98af84437: Verifying Checksum
+38d98af84437: Download complete
+1523f4b3f560: Verifying Checksum
+1523f4b3f560: Download complete
+1523f4b3f560: Pull complete
+38d98af84437: Pull complete
+Digest: sha256:a45bf1f5d9af0a23b26703b3500d70af1abff7f984a7abef5a104b42c02a292b
+Status: Downloaded newer image for rust:1.83
+ ---> 6440c73bd6ca
+Step 2/15 : WORKDIR /app
+ ---> Running in 50f3e7a0a590
+ ---> Removed intermediate container 50f3e7a0a590
+ ---> c803b7eb719c
+Step 3/15 : COPY Cargo.toml Cargo.lock ./
+ ---> f86381ebedf9
+Step 4/15 : RUN mkdir src &&     echo "fn main() {}" > src/main.rs &&     cargo build --release &&     rm -rf src
+ ---> Running in e26cc3f1c5e7
+[91m    Updating crates.io index
+[0m[91m Downloading crates ...
+[0m[91m  Downloaded actix-rt v2.11.0
+[0m[91m  Downloaded actix-router v0.5.3
+[0m[91m  Downloaded fnv v1.0.7
+[0m[91m  Downloaded colorchoice v1.0.4
+[0m[91m  Downloaded actix-codec v0.5.2
+[0m[91m  Downloaded atoi v2.0.0
+[0m[91m  Downloaded actix-service v2.0.3
+[0m[91m  Downloaded futures-executor v0.3.31
+[0m[91m  Downloaded actix-cors v0.7.1
+[0m[91m  Downloaded actix-macros v0.2.4
+[0m[91m  Downloaded block-buffer v0.10.4
+[0m[91m  Downloaded autocfg v1.5.0
+[0m[91m  Downloaded bcrypt v0.15.1
+[0m[91m  Downloaded subtle v2.6.1
+[0m[91m  Downloaded bitflags v2.10.0
+[0m[91m  Downloaded thiserror-impl v2.0.18
+[0m[91m  Downloaded thiserror v1.0.69
+[0m[91m  Downloaded actix-http v3.11.2
+[0m[91m  Downloaded blowfish v0.9.1
+[0m[91m  Downloaded icu_normalizer v2.1.1
+[0m[91m  Downloaded base64 v0.22.1
+[0m[91m  Downloaded icu_properties v2.1.2
+[0m[91m  Downloaded errno v0.3.14
+[0m[91m  Downloaded displaydoc v0.2.5
+[0m[91m  Downloaded thiserror v2.0.18
+[0m[91m  Downloaded httparse v1.10.1
+[0m[91m  Downloaded ahash v0.8.12
+[0m[91m  Downloaded futures-core v0.3.31
+[0m[91m  Downloaded crossbeam-queue v0.3.12
+[0m[91m  Downloaded dotenvy v0.15.7
+[0m[91m  Downloaded futures-util v0.3.31
+[0m[91m  Downloaded form_urlencoded v1.2.2
+[0m[91m  Downloaded thiserror-impl v1.0.69
+[0m[91m  Downloaded futures-task v0.3.31
+[0m[91m  Downloaded find-msvc-tools v0.1.9
+[0m[91m  Downloaded tempfile v3.24.0
+[0m[91m  Downloaded time-core v0.1.8
+[0m[91merror: failed to parse manifest at `/usr/local/cargo/registry/src/index.crates.io-6f17d22bba15001f/time-core-0.1.8/Cargo.toml`
+
+Caused by:
+[0m[91m  feature `edition2024` is required
+
+  The package requires the Cargo feature called `edition2024`, but that feature is not stabilized in this version of Cargo (1.83.0 (5ffbef321 2024-10-29)).
+  Consider trying a newer version of Cargo (this may require the nightly release).
+  See https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#edition-2024 for more information about the status of this feature.
+[0mThe command '/bin/sh -c mkdir src &&     echo "fn main() {}" > src/main.rs &&     cargo build --release &&     rm -rf src' returned a non-zero code: 101

@@ -79,7 +79,7 @@ const LoginPage: React.FC = () => {
         </div>
         
         <form onSubmit={handleSubmit} className="login-form">
-          <h2 className="form-title">{isSignup ? 'Create Account' : 'Welcome Back'}</h2>
+          <h2 className="form-title">{isSignup ? 'Create Account' : 'Welcome'}</h2>
           
           <div className="form-group">
             <label htmlFor="username">Username</label>

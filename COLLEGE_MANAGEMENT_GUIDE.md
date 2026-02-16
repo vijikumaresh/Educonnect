@@ -324,3 +324,5 @@ You now have a fully functional **College Management & Activity Tracking Dashboa
 
 **Start tracking your college activities today!** 🚀
 
+
+

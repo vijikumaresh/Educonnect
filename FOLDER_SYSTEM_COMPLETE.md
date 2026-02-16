@@ -367,3 +367,5 @@ Your EduConnect application now has:
 *Built with React + TypeScript + Rust + PostgreSQL*
 
 
+
+

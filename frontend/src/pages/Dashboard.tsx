@@ -29,6 +29,28 @@ const Dashboard: React.FC = () => {
     loadData();
   }, []);
 
+  const handleBack = () => {
+    if (showActivities) {
+      // If viewing activities, go back to folder view
+      setShowActivities(false);
+    } else if (showForm) {
+      // If viewing form, go back to list
+      setShowForm(false);
+      setEditingStudent(null);
+    } else if (selectedFolderId) {
+      // If folder selected, go back to parent or all folders
+      const currentFolder = folders.find(f => f.id === selectedFolderId);
+      if (currentFolder?.parent_id) {
+        setSelectedFolderId(currentFolder.parent_id);
+      } else {
+        setSelectedFolderId(null);
+      }
+    } else {
+      // At root, go to login page
+      navigate('/');
+    }
+  };
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -251,7 +273,25 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1 className="company-name">ONE27 Educational Services Private Limited</h1>
+        <div className="header-left">
+          <button 
+            onClick={handleBack} 
+            className="back-button"
+            title="Go back"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth={2} 
+              stroke="currentColor" 
+              className="back-arrow-icon"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+          </button>
+          <h1 className="company-name">ONE27 Educational Services Private Limited</h1>
+        </div>
         <div className="header-actions">
           <span className="welcome-text">Welcome, {user?.username}</span>
           <button onClick={handleLogout} className="logout-button">

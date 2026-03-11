@@ -89,8 +89,18 @@ const StudentTable: React.FC<StudentTableProps> = ({ students, onEdit, onDelete 
         <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
-        <h3>No Students in this folder</h3>
-        <p>Click "Add Contact" to add students</p>
+        <h3>No Students Yet</h3>
+        <p>Get started by adding your first student!</p>
+        <div className="empty-state-instructions">
+          <p><strong>To add a student:</strong></p>
+          <ol>
+            <li>Click the <strong>"Add Contact"</strong> button above (top right)</li>
+            <li>Fill in all the required fields</li>
+            <li>Select at least one exam preference</li>
+            <li>Click <strong>"Add Student"</strong> to save</li>
+          </ol>
+          <p className="tip">💡 Tip: You can organize students by creating folders first!</p>
+        </div>
       </div>
     );
   }

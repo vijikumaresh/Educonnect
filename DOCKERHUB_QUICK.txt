@@ -1,0 +1,152 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                   🐳 DOCKER HUB - QUICK REFERENCE                        ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📦 DOCKER IMAGE NAMES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace YOUR_USERNAME with your Docker Hub username (e.g., vijikumaresh)
+
+Frontend: YOUR_USERNAME/educonnect-frontend:latest
+Backend:  YOUR_USERNAME/educonnect-backend:latest
+
+Example:
+Frontend: vijikumaresh/educonnect-frontend:latest
+Backend:  vijikumaresh/educonnect-backend:latest
+
+
+🚀 AUTOMATED PUSH (RECOMMENDED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Edit the script:
+   nano push-to-dockerhub.sh
+   
+   Change line 9:
+   DOCKER_USERNAME="YOUR_USERNAME"  # ← Put your Docker Hub username here
+
+2. Run the script:
+   ./push-to-dockerhub.sh
+
+   This will:
+   ✓ Login to Docker Hub
+   ✓ Build backend image
+   ✓ Build frontend image
+   ✓ Push backend to Docker Hub
+   ✓ Push frontend to Docker Hub
+
+
+📋 MANUAL COMMANDS (COPY-PASTE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace YOUR_USERNAME in all commands below:
+
+# Step 1: Login
+docker login
+
+# Step 2: Build Backend
+cd /home/pc3/Desktop/Educonnect/backend
+docker build -t YOUR_USERNAME/educonnect-backend:latest .
+
+# Step 3: Build Frontend
+cd /home/pc3/Desktop/Educonnect/frontend
+docker build --build-arg VITE_API_URL=http://localhost:8080/api -t YOUR_USERNAME/educonnect-frontend:latest .
+
+# Step 4: Push Backend
+docker push YOUR_USERNAME/educonnect-backend:latest
+
+# Step 5: Push Frontend
+docker push YOUR_USERNAME/educonnect-frontend:latest
+
+
+🔄 PULL IMAGES FROM DOCKER HUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+docker pull YOUR_USERNAME/educonnect-backend:latest
+docker pull YOUR_USERNAME/educonnect-frontend:latest
+
+
+📁 USE IN DOCKER-COMPOSE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Update docker-compose.yml:
+
+services:
+  backend:
+    image: YOUR_USERNAME/educonnect-backend:latest
+    # ... rest of config
+
+  frontend:
+    image: YOUR_USERNAME/educonnect-frontend:latest
+    # ... rest of config
+
+
+🏷️ VERSION TAGGING (OPTIONAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Tag with version
+docker tag YOUR_USERNAME/educonnect-frontend:latest YOUR_USERNAME/educonnect-frontend:v1.0.0
+docker tag YOUR_USERNAME/educonnect-backend:latest YOUR_USERNAME/educonnect-backend:v1.0.0
+
+# Push versioned tags
+docker push YOUR_USERNAME/educonnect-frontend:v1.0.0
+docker push YOUR_USERNAME/educonnect-backend:v1.0.0
+
+
+✅ VERIFY ON DOCKER HUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: https://hub.docker.com
+2. Login with your credentials
+3. Click "Repositories"
+4. You should see:
+   - educonnect-frontend
+   - educonnect-backend
+
+
+💾 IMAGE SIZES (APPROXIMATE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend: ~50 MB   (nginx:alpine + React build)
+Backend:  ~150 MB  (Debian slim + Rust binary)
+Database: ~80 MB   (postgres:16-alpine)
+
+
+🔍 CHECK LOCAL IMAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+docker images | grep educonnect
+
+
+🗑️ CLEAN UP LOCAL IMAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+docker rmi YOUR_USERNAME/educonnect-frontend:latest
+docker rmi YOUR_USERNAME/educonnect-backend:latest
+
+
+📞 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Error: "denied: requested access to the resource is denied"
+Fix: Run 'docker login' and enter credentials
+
+Error: Build fails with memory error
+Fix: Increase Docker memory in Docker Desktop settings
+
+Error: Push is very slow
+Fix: This is normal - upload speed is limited by your internet connection
+
+
+📚 MORE INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Full Guide: DOCKERHUB_PUSH_GUIDE.md
+Docker Hub: https://hub.docker.com
+Docker Docs: https://docs.docker.com
+
+
+═══════════════════════════════════════════════════════════════════════════
+Created: February 28, 2026
+Last Updated: February 28, 2026
+═══════════════════════════════════════════════════════════════════════════
+

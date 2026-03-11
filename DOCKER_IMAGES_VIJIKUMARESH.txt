@@ -1,0 +1,186 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║          🐳 DOCKER HUB IMAGES - READY TO USE (vijikumaresh)             ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📦 YOUR DOCKER IMAGE NAMES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend: vijikumaresh/educonnect-frontend:latest
+Backend:  vijikumaresh/educonnect-backend:latest
+
+
+🚀 PUSH TO DOCKER HUB (AUTOMATED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Simply run:
+
+./push-to-dockerhub.sh
+
+This will:
+✓ Login to Docker Hub
+✓ Build backend image as vijikumaresh/educonnect-backend:latest
+✓ Build frontend image as vijikumaresh/educonnect-frontend:latest
+✓ Push both images to Docker Hub
+
+
+📋 MANUAL COMMANDS (COPY-PASTE READY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Login to Docker Hub
+docker login
+
+# Build Backend
+cd /home/pc3/Desktop/Educonnect/backend
+docker build -t vijikumaresh/educonnect-backend:latest .
+
+# Build Frontend
+cd /home/pc3/Desktop/Educonnect/frontend
+docker build --build-arg VITE_API_URL=http://localhost:8080/api \
+  -t vijikumaresh/educonnect-frontend:latest .
+
+# Push Backend
+docker push vijikumaresh/educonnect-backend:latest
+
+# Push Frontend
+docker push vijikumaresh/educonnect-frontend:latest
+
+
+🔄 PULL FROM DOCKER HUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+docker pull vijikumaresh/educonnect-backend:latest
+docker pull vijikumaresh/educonnect-frontend:latest
+
+
+📦 USE IN DOCKER-COMPOSE.YML
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: educonnect-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: educonnect_app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - educonnect-network
+
+  backend:
+    image: vijikumaresh/educonnect-backend:latest
+    container_name: educonnect-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/educonnect_app
+      RUST_LOG: info
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - educonnect-network
+
+  frontend:
+    image: vijikumaresh/educonnect-frontend:latest
+    container_name: educonnect-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - educonnect-network
+
+networks:
+  educonnect-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+
+🎯 FOR DOKPLOY DEPLOYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When setting up in Dokploy, use these image names:
+
+Database (PostgreSQL):
+  Image: postgres:16-alpine
+  Environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: your_secure_password
+    POSTGRES_DB: educonnect_app
+
+Backend:
+  Image: vijikumaresh/educonnect-backend:latest
+  Environment:
+    DATABASE_URL: postgresql://postgres:PASSWORD@DB_SERVICE:5432/educonnect_app
+    RUST_LOG: info
+  Port: 8080
+
+Frontend:
+  Image: vijikumaresh/educonnect-frontend:latest
+  Environment:
+    VITE_API_URL: https://your-backend-url.com/api
+  Port: 80
+
+
+✅ VERIFY ON DOCKER HUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After pushing, verify at:
+https://hub.docker.com/u/vijikumaresh
+
+You should see:
+✓ educonnect-frontend repository
+✓ educonnect-backend repository
+
+
+🔍 CHECK LOCAL IMAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+docker images | grep vijikumaresh
+
+
+📊 IMAGE INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend Image:
+  Name: vijikumaresh/educonnect-frontend:latest
+  Size: ~50 MB (nginx:alpine + React build)
+  Base: node:20-alpine → nginx:alpine
+
+Backend Image:
+  Name: vijikumaresh/educonnect-backend:latest
+  Size: ~150 MB (Debian slim + Rust binary)
+  Base: rust:latest → debian:bookworm-slim
+
+
+🏷️ VERSION TAGGING (OPTIONAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Create version tags
+docker tag vijikumaresh/educonnect-frontend:latest vijikumaresh/educonnect-frontend:v1.0.0
+docker tag vijikumaresh/educonnect-backend:latest vijikumaresh/educonnect-backend:v1.0.0
+
+# Push versioned tags
+docker push vijikumaresh/educonnect-frontend:v1.0.0
+docker push vijikumaresh/educonnect-backend:v1.0.0
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+✨ READY TO GO! Run: ./push-to-dockerhub.sh
+
+Created: February 28, 2026
+Docker Hub User: vijikumaresh
+
+═══════════════════════════════════════════════════════════════════════════
+

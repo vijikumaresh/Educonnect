@@ -60,11 +60,3 @@ services:
     networks:
       - educonnect-network
 
-networks:
-  educonnect-network:
-    driver: bridge
-
-volumes:
-  postgres_data:
-    driver: local
-

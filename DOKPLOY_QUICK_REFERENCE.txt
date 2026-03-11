@@ -1,0 +1,106 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    DOKPLOY DEPLOYMENT QUICK REFERENCE                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ 🗄️  DATABASE (PostgreSQL 16)                                             │
+├──────────────────────────────────────────────────────────────────────────┤
+│ Image:             postgres:16-alpine                                    │
+│ Port:              5432                                                  │
+│ Volume:            /var/lib/postgresql/data                              │
+│                                                                          │
+│ Environment Variables:                                                   │
+│   POSTGRES_USER=postgres                                                 │
+│   POSTGRES_PASSWORD=[YOUR_SECURE_PASSWORD]                               │
+│   POSTGRES_DB=educonnect_app                                             │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ 🦀 BACKEND (Rust + Actix Web)                                            │
+├──────────────────────────────────────────────────────────────────────────┤
+│ Build Context:     ./backend                                             │
+│ Dockerfile:        ./backend/Dockerfile                                  │
+│ Port:              8080                                                  │
+│ Health Check:      /health                                               │
+│                                                                          │
+│ Environment Variables:                                                   │
+│   DATABASE_URL=postgresql://postgres:[PASSWORD]@[DB_HOST]:5432/educonnect_app │
+│   RUST_LOG=info                                                          │
+│   PORT=8080                                                              │
+│                                                                          │
+│ Example DATABASE_URL:                                                    │
+│   postgresql://postgres:mypass123@educonnect-postgres:5432/educonnect_app │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ⚛️  FRONTEND (React + TypeScript + Vite)                                 │
+├──────────────────────────────────────────────────────────────────────────┤
+│ Build Context:     ./frontend                                            │
+│ Dockerfile:        ./frontend/Dockerfile                                 │
+│ Port:              80                                                    │
+│                                                                          │
+│ Environment Variables:                                                   │
+│   VITE_API_URL=https://[YOUR_BACKEND_URL]/api                            │
+│                                                                          │
+│ ⚠️  CRITICAL: Must include /api at the end!                              │
+│ ⚠️  MUST use the backend URL from Dokploy (https://...)                 │
+│                                                                          │
+│ Example:                                                                 │
+│   VITE_API_URL=https://educonnect-api.dokploy.app/api                   │
+└──────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                          DEPLOYMENT ORDER                                ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+  1️⃣  Deploy DATABASE first
+      └─ Note the service name (e.g., "educonnect-postgres")
+
+  2️⃣  Deploy BACKEND second
+      └─ Use database service name in DATABASE_URL
+      └─ Copy the generated backend URL
+
+  3️⃣  Deploy FRONTEND last
+      └─ Use backend URL in VITE_API_URL
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                         IMPORTANT NOTES                                  ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+✅ Frontend VITE_API_URL MUST include "/api" at the end
+✅ Backend DATABASE_URL uses internal service name (not localhost)
+✅ Use strong passwords (generate with: openssl rand -base64 32)
+✅ VITE_API_URL must use https:// (not http://)
+
+❌ Don't use "localhost" in DATABASE_URL for Dokploy
+❌ Don't forget the /api suffix in VITE_API_URL
+❌ Don't commit .env files with real passwords
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                            VERIFICATION                                  ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+Test Backend:    https://your-backend-url/health
+Test Frontend:   https://your-frontend-url
+Check Logs:      Dokploy Dashboard → Service → Logs
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                         COMMON ISSUES                                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+Issue: Frontend can't connect to backend
+Fix:   Check VITE_API_URL has correct domain and /api suffix
+
+Issue: Backend can't connect to database
+Fix:   Verify DATABASE_URL uses correct service name and password
+
+Issue: CORS errors
+Fix:   Ensure backend URL in VITE_API_URL is correct
+
+═══════════════════════════════════════════════════════════════════════════
+
+📚 Full Documentation: See DOKPLOY_SETUP.md
+📝 Environment Examples: See ENV_EXAMPLES.md
+
+═══════════════════════════════════════════════════════════════════════════
+

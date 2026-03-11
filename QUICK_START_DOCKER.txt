@@ -1,0 +1,62 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║            🚀 QUICK START - Push to Docker Hub (vijikumaresh)           ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📦 YOUR DOCKER IMAGE NAMES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Backend:  vijikumaresh/educonnect-backend:latest
+Frontend: vijikumaresh/educonnect-frontend:latest
+
+
+🎯 OPTION 1: AUTOMATED (RECOMMENDED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Just run this ONE command:
+
+    ./push-to-dockerhub.sh
+
+
+📋 OPTION 2: MANUAL COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+docker login
+
+cd /home/pc3/Desktop/Educonnect/backend
+docker build -t vijikumaresh/educonnect-backend:latest .
+docker push vijikumaresh/educonnect-backend:latest
+
+cd /home/pc3/Desktop/Educonnect/frontend
+docker build --build-arg VITE_API_URL=http://localhost:8080/api \
+  -t vijikumaresh/educonnect-frontend:latest .
+docker push vijikumaresh/educonnect-frontend:latest
+
+
+✅ AFTER PUSHING - VERIFY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Visit: https://hub.docker.com/u/vijikumaresh
+
+You should see:
+✓ educonnect-backend
+✓ educonnect-frontend
+
+
+🎯 USE IN DOKPLOY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Backend Image:  vijikumaresh/educonnect-backend:latest
+Frontend Image: vijikumaresh/educonnect-frontend:latest
+
+
+📦 USE WITH DOCKER-COMPOSE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Use the pre-configured file:
+
+    docker-compose -f docker-compose.dockerhub.yml up -d
+
+
+═══════════════════════════════════════════════════════════════════════════
+Ready to push! Run: ./push-to-dockerhub.sh
+═══════════════════════════════════════════════════════════════════════════

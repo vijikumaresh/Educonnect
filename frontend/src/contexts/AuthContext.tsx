@@ -4,8 +4,8 @@ import { authAPI } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
-  signup: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const signup = async (username: string, password: string): Promise<boolean> => {
+  const signup = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await authAPI.register(username, password);
       const userData: User = {
@@ -44,14 +44,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(userData);
       localStorage.setItem('currentUser', JSON.stringify(userData));
-      return true;
-    } catch (error) {
+      return { success: true };
+    } catch (error: any) {
       console.error('Signup error:', error);
-      return false;
+      const errorMessage = error?.message || 'Failed to create account. Please check if the backend is running.';
+      return { success: false, error: errorMessage };
     }
   };
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await authAPI.login(username, password);
       const userData: User = {
@@ -60,10 +61,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(userData);
       localStorage.setItem('currentUser', JSON.stringify(userData));
-      return true;
-    } catch (error) {
+      return { success: true };
+    } catch (error: any) {
       console.error('Login error:', error);
-      return false;
+      const errorMessage = error?.message || 'Failed to login. Please check your credentials and ensure the backend is running.';
+      return { success: false, error: errorMessage };
     }
   };
 

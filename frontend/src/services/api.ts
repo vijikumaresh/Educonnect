@@ -1,6 +1,10 @@
 import { Student, Folder, ExamPreference, Seminar, RecruitmentDrive, BookOrder } from '../types';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+// Use environment variable for API URL, fallback to production API for production, localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD 
+    ? 'https://registerstudents.kattral.ai/api' 
+    : 'https://registerstudents.kattral.ai/api');
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -24,29 +28,63 @@ const getAuthHeaders = () => {
 // Auth API
 export const authAPI = {
   register: async (username: string, password: string) => {
+    try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
+      
     if (!response.ok) {
+        let errorMessage = 'Registration failed';
+        try {
       const error = await response.json();
-      throw new Error(error.error || 'Registration failed');
+          errorMessage = error.error || errorMessage;
+        } catch {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
     }
+      
     return response.json();
+    } catch (error: any) {
+      // Handle network errors
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        const backendUrl = 'https://registerstudents.kattral.ai';
+        throw new Error(`Cannot connect to server. Please make sure the backend is running at ${backendUrl}`);
+      }
+      throw error;
+    }
   },
 
   login: async (username: string, password: string) => {
+    try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
+      
     if (!response.ok) {
+        let errorMessage = 'Login failed';
+        try {
       const error = await response.json();
-      throw new Error(error.error || 'Login failed');
+          errorMessage = error.error || errorMessage;
+        } catch {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
     }
+      
     return response.json();
+    } catch (error: any) {
+      // Handle network errors
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        const backendUrl = 'https://registerstudents.kattral.ai';
+        throw new Error(`Cannot connect to server. Please make sure the backend is running at ${backendUrl}`);
+      }
+      throw error;
+    }
   }
 };
 

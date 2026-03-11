@@ -31,13 +31,12 @@ const SubfolderDashboard: React.FC<SubfolderDashboardProps> = ({
           </p>
         </div>
         <div className="header-actions">
-          <button className="create-folder-btn" onClick={onCreateSubfolder}>
+          <button className="create-folder-btn" onClick={onCreateSubfolder} title="Create New Folder">
             <span className="btn-icon">📁+</span>
-            Create New Folder
           </button>
           <button className="add-contact-btn" onClick={onAddContactClick}>
             <span className="btn-icon">+</span>
-            Add Contact Here
+            Add Contact
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Folder } from '../types';
 import '../styles/FolderTree.css';
 
@@ -24,6 +24,7 @@ interface FolderNodeProps {
   onDelete: () => void;
   onMove: () => void;
   onCopy: () => void;
+  searchTerm?: string;
 }
 
 const FolderNode: React.FC<FolderNodeProps> = ({
@@ -36,7 +37,8 @@ const FolderNode: React.FC<FolderNodeProps> = ({
   onRename,
   onDelete,
   onMove,
-  onCopy
+  onCopy,
+  searchTerm = ''
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
@@ -141,21 +143,48 @@ const FolderNode: React.FC<FolderNodeProps> = ({
       </div>
       {hasChildren && isExpanded && (
         <div className="folder-children">
-          {subFolders.map(subFolder => (
-            <FolderTreeNode
-              key={subFolder.id}
-              folder={subFolder}
-              subFolders={allFolders.filter(f => f.parent_id === subFolder.id)}
-              allFolders={allFolders}
-              isSelected={isSelected}
-              onSelect={onSelect}
-              onCreateSubfolder={onCreateSubfolder}
-              onRename={onRename}
-              onDelete={onDelete}
-              onMove={onMove}
-              onCopy={onCopy}
-            />
-          ))}
+          {subFolders.map(subFolder => {
+            // Recursively get all descendants to check for matches
+            const getDescendants = (folderId: string): Folder[] => {
+              const directChildren = allFolders.filter(f => f.parent_id === folderId);
+              const allDescendants = [...directChildren];
+              directChildren.forEach(child => {
+                allDescendants.push(...getDescendants(child.id));
+              });
+              return allDescendants;
+            };
+            
+            // Get filtered subfolders for this child
+            const childSubFolders = searchTerm
+              ? allFolders.filter(f => {
+                  if (f.parent_id !== subFolder.id) return false;
+                  const searchLower = searchTerm.toLowerCase();
+                  const nameMatches = f.name.toLowerCase().includes(searchLower);
+                  const descendants = getDescendants(f.id);
+                  const descendantMatches = descendants.some(desc => 
+                    desc.name.toLowerCase().includes(searchLower)
+                  );
+                  return nameMatches || descendantMatches;
+                })
+              : allFolders.filter(f => f.parent_id === subFolder.id);
+            
+            return (
+              <FolderTreeNode
+                key={subFolder.id}
+                folder={subFolder}
+                subFolders={childSubFolders}
+                allFolders={allFolders}
+                isSelected={isSelected}
+                onSelect={onSelect}
+                onCreateSubfolder={onCreateSubfolder}
+                onRename={onRename}
+                onDelete={onDelete}
+                onMove={onMove}
+                onCopy={onCopy}
+                searchTerm={searchTerm}
+              />
+            );
+          })}
         </div>
       )}
     </div>
@@ -163,7 +192,31 @@ const FolderNode: React.FC<FolderNodeProps> = ({
 };
 
 const FolderTreeNode: React.FC<FolderNodeProps> = (props) => {
-  const subFolders = props.allFolders.filter(f => f.parent_id === props.folder.id);
+  const searchTerm = props.searchTerm || '';
+  
+  // Recursively get all descendants
+  const getDescendants = (folderId: string): Folder[] => {
+    const directChildren = props.allFolders.filter(f => f.parent_id === folderId);
+    const allDescendants = [...directChildren];
+    directChildren.forEach(child => {
+      allDescendants.push(...getDescendants(child.id));
+    });
+    return allDescendants;
+  };
+  
+  const subFolders = searchTerm
+    ? props.allFolders.filter(f => {
+        if (f.parent_id !== props.folder.id) return false;
+        const searchLower = searchTerm.toLowerCase();
+        const nameMatches = f.name.toLowerCase().includes(searchLower);
+        const descendants = getDescendants(f.id);
+        const descendantMatches = descendants.some(desc => 
+          desc.name.toLowerCase().includes(searchLower)
+        );
+        return nameMatches || descendantMatches;
+      })
+    : props.allFolders.filter(f => f.parent_id === props.folder.id);
+    
   return <FolderNode {...props} subFolders={subFolders} />;
 };
 
@@ -177,10 +230,77 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   onMoveFolder,
   onCopyFolder
 }) => {
-  const rootFolders = folders.filter(f => !f.parent_id);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Function to recursively check if a folder or any of its descendants match the search term
+  const folderMatchesSearch = (folder: Folder, allFolders: Folder[], searchTerm: string): boolean => {
+    if (!searchTerm.trim()) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const folderNameMatches = folder.name.toLowerCase().includes(searchLower);
+    
+    // Get all descendants recursively
+    const getDescendants = (folderId: string): Folder[] => {
+      const directChildren = allFolders.filter(f => f.parent_id === folderId);
+      const allDescendants = [...directChildren];
+      directChildren.forEach(child => {
+        allDescendants.push(...getDescendants(child.id));
+      });
+      return allDescendants;
+    };
+    
+    const descendants = getDescendants(folder.id);
+    const anyDescendantMatches = descendants.some(desc => 
+      desc.name.toLowerCase().includes(searchLower)
+    );
+    
+    return folderNameMatches || anyDescendantMatches;
+  };
+
+  // Function to get filtered subfolders (only those that match or have matching children)
+  const getFilteredSubfolders = (parentId: string | null, allFolders: Folder[], searchTerm: string): Folder[] => {
+    if (!searchTerm.trim()) {
+      return allFolders.filter(f => f.parent_id === parentId);
+    }
+    
+    return allFolders.filter(f => 
+      f.parent_id === parentId && folderMatchesSearch(f, allFolders, searchTerm)
+    );
+  };
+
+  // Filter root folders based on search term
+  const filteredRootFolders = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return folders.filter(f => !f.parent_id);
+    }
+    
+    return folders.filter(f => 
+      !f.parent_id && folderMatchesSearch(f, folders, searchTerm)
+    );
+  }, [folders, searchTerm]);
 
   return (
     <div className="folder-tree">
+      {/* Search Input */}
+      <div className="folder-search-container">
+        <input
+          type="text"
+          className="folder-search-input"
+          placeholder="Search districts..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button
+            className="folder-search-clear"
+            onClick={() => setSearchTerm('')}
+            title="Clear search"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
       <div 
         className={`folder-item root-item ${selectedFolderId === null ? 'selected' : ''}`}
         onClick={() => onFolderSelect(null)}
@@ -188,24 +308,31 @@ const FolderTree: React.FC<FolderTreeProps> = ({
         <span className="folder-icon">🏠</span>
         <span className="folder-name">All Students</span>
       </div>
-      {rootFolders.map(folder => {
-        const subFolders = folders.filter(f => f.parent_id === folder.id);
-        return (
-          <FolderNode
-            key={folder.id}
-            folder={folder}
-            subFolders={subFolders}
-            allFolders={folders}
-            isSelected={selectedFolderId === folder.id}
-            onSelect={() => onFolderSelect(folder.id)}
-            onCreateSubfolder={() => onCreateFolder(folder.id)}
-            onRename={() => onRenameFolder(folder.id)}
-            onDelete={() => onDeleteFolder(folder.id)}
-            onMove={() => onMoveFolder(folder.id)}
-            onCopy={() => onCopyFolder(folder.id)}
-          />
-        );
-      })}
+      {filteredRootFolders.length === 0 && searchTerm ? (
+        <div className="folder-search-empty">
+          <p>No folders found matching "{searchTerm}"</p>
+        </div>
+      ) : (
+        filteredRootFolders.map(folder => {
+          const subFolders = getFilteredSubfolders(folder.id, folders, searchTerm);
+          return (
+            <FolderNode
+              key={folder.id}
+              folder={folder}
+              subFolders={subFolders}
+              allFolders={folders}
+              isSelected={selectedFolderId === folder.id}
+              onSelect={() => onFolderSelect(folder.id)}
+              onCreateSubfolder={() => onCreateFolder(folder.id)}
+              onRename={() => onRenameFolder(folder.id)}
+              onDelete={() => onDeleteFolder(folder.id)}
+              onMove={() => onMoveFolder(folder.id)}
+              onCopy={() => onCopyFolder(folder.id)}
+              searchTerm={searchTerm}
+            />
+          );
+        })
+      )}
     </div>
   );
 };

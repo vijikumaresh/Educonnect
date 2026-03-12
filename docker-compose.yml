@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -13,8 +11,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    ports:
-      - "5432:5432"
     networks:
       - educonnect-network
     healthcheck:
@@ -30,6 +26,9 @@ services:
       dockerfile: Dockerfile
     container_name: educonnect-backend
     restart: unless-stopped
+    env_file:
+      - ./backend/.env
+      - ./.env
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/educonnect_app
       RUST_LOG: info
@@ -51,12 +50,20 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://registerstudentsapi.kattral.ai/api
     container_name: educonnect-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "6375:6375"
     depends_on:
       - backend
     networks:
       - educonnect-network
 
+networks:
+  educonnect-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

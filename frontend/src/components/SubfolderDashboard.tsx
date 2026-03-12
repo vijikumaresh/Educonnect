@@ -35,7 +35,7 @@ const SubfolderDashboard: React.FC<SubfolderDashboardProps> = ({
             <span className="btn-icon">📁+</span>
           </button>
           <button className="add-contact-btn" onClick={onAddContactClick}>
-            <span className="btn-icon">+</span>
+            <span className="btn-icon">📁+</span>
             Add Contact
           </button>
         </div>

@@ -1,10 +1,15 @@
 import { Student, Folder, ExamPreference, Seminar, RecruitmentDrive, BookOrder } from '../types';
 
-// Use environment variable for API URL, fallback to production API for production, localhost for development
-const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD 
-    ? 'https://registerstudents.kattral.ai/api' 
-    : 'https://registerstudents.kattral.ai/api');
+// Prefer explicit env override; otherwise use same-origin API route.
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+
+const getBackendDisplayUrl = (): string => {
+  // If API base is relative (e.g. /api), show current origin in user-facing errors.
+  if (API_BASE_URL.startsWith('/')) {
+    return window.location.origin;
+  }
+  return API_BASE_URL.replace(/\/api$/, '');
+};
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -50,7 +55,7 @@ export const authAPI = {
     } catch (error: any) {
       // Handle network errors
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        const backendUrl = 'https://registerstudents.kattral.ai';
+        const backendUrl = getBackendDisplayUrl();
         throw new Error(`Cannot connect to server. Please make sure the backend is running at ${backendUrl}`);
       }
       throw error;
@@ -80,7 +85,7 @@ export const authAPI = {
     } catch (error: any) {
       // Handle network errors
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        const backendUrl = 'https://registerstudents.kattral.ai';
+        const backendUrl = getBackendDisplayUrl();
         throw new Error(`Cannot connect to server. Please make sure the backend is running at ${backendUrl}`);
       }
       throw error;

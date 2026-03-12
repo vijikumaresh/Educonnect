@@ -94,7 +94,7 @@ const StudentTable: React.FC<StudentTableProps> = ({ students, onEdit, onDelete 
         <div className="empty-state-instructions">
           <p><strong>To add a student:</strong></p>
           <ol>
-            <li>Click the <strong>"Add Contact"</strong> button above (top right)</li>
+            <li>Click the <strong>"📁+ Add Contact"</strong> button above (top right)</li>
             <li>Fill in all the required fields</li>
             <li>Select at least one exam preference</li>
             <li>Click <strong>"Add Student"</strong> to save</li>

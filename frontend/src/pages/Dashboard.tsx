@@ -24,6 +24,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [movingFolder, setMovingFolder] = useState<Folder | null>(null);
   const [showActivities, setShowActivities] = useState(false);
+  const [districtSearch, setDistrictSearch] = useState('');
 
   useEffect(() => {
     loadData();
@@ -180,6 +181,72 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handlePrintFolder = (folderId: string) => {
+    const folder = folders.find(f => f.id === folderId);
+    if (!folder) {
+      alert('Folder not found');
+      return;
+    }
+
+    const folderStudents = students.filter(s => s.folder_id === folderId);
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Unable to open print window. Please allow pop-ups and try again.');
+      return;
+    }
+
+    const rows = folderStudents.map((student, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${student.name}</td>
+        <td>${student.phone}</td>
+        <td>${student.email}</td>
+        <td>${student.college_name}</td>
+      </tr>
+    `).join('');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Folder Report - ${folder.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
+            h1 { margin-bottom: 4px; }
+            .meta { margin-bottom: 16px; color: #555; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 14px; }
+            th { background: #f5f5f5; }
+          </style>
+        </head>
+        <body>
+          <h1>${folder.name}</h1>
+          <div class="meta">
+            Total students: ${folderStudents.length}<br/>
+            Printed on: ${new Date().toLocaleString()}
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>College</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td colspan="5">No students in this folder.</td></tr>'}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
   const handleSaveStudent = async (studentData: Omit<Student, 'id' | 'created_at'>) => {
     console.log('Attempting to save student:', studentData);
     try {
@@ -260,6 +327,10 @@ const Dashboard: React.FC = () => {
     acc[folder.id] = students.filter(s => s.folder_id === folder.id).length;
     return acc;
   }, {} as { [key: string]: number });
+  const rootFolders = folders.filter(f => !f.parent_id);
+  const filteredRootFolders = rootFolders.filter(folder =>
+    folder.name.toLowerCase().includes(districtSearch.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -309,15 +380,15 @@ const Dashboard: React.FC = () => {
 
       <div className="dashboard-content">
         <aside className="sidebar-new">
-          <div className="sidebar-actions">
-            <button className="action-btn secondary-btn" onClick={() => handleCreateFolder(null)}>
-              <span className="btn-icon">📁</span>
-              Create Folder
-            </button>
-          </div>
-          
+          {selectedFolderId === null && (
+            <div className="sidebar-actions">
+              <button className="action-btn secondary-btn" onClick={() => handleCreateFolder(null)}>
+                <span className="btn-icon">📁</span>
+                Create New Folder
+              </button>
+            </div>
+          )}
           <div className="folder-section">
-            <h3 className="section-title">Folders</h3>
             <FolderTree
               folders={folders}
               selectedFolderId={selectedFolderId}
@@ -327,6 +398,7 @@ const Dashboard: React.FC = () => {
               onDeleteFolder={handleDeleteFolder}
               onMoveFolder={handleMoveFolder}
               onCopyFolder={handleCopyFolder}
+              onPrintFolder={handlePrintFolder}
             />
           </div>
         </aside>
@@ -354,6 +426,61 @@ const Dashboard: React.FC = () => {
               folderId={selectedFolderId}
               folderName={folders.find(f => f.id === selectedFolderId)?.name || 'Folder'}
             />
+          ) : !selectedFolderId ? (
+            <div className="subfolder-dashboard">
+              <div className="dashboard-header">
+                <div>
+                  <h2>All Districts</h2>
+                  <p className="subfolder-count">
+                    {filteredRootFolders.length} {filteredRootFolders.length === 1 ? 'district' : 'districts'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="district-search-container">
+                <input
+                  type="text"
+                  className="district-search-input"
+                  placeholder="Search districts..."
+                  value={districtSearch}
+                  onChange={(e) => setDistrictSearch(e.target.value)}
+                />
+              </div>
+
+              <div className="subfolders-grid">
+                {filteredRootFolders.length === 0 ? (
+                  <div className="empty-subfolders">
+                    <div className="empty-icon">📁</div>
+                    <h3>{districtSearch ? 'No matching districts' : 'No districts yet'}</h3>
+                    <p>
+                      {districtSearch
+                        ? `No districts found matching "${districtSearch}".`
+                        : 'Create your first district from the folders menu on the left.'}
+                    </p>
+                  </div>
+                ) : (
+                  filteredRootFolders.map(folder => (
+                    <div
+                      key={folder.id}
+                      className="subfolder-card"
+                      onClick={() => setSelectedFolderId(folder.id)}
+                    >
+                      <div className="card-icon">📁</div>
+                      <div className="card-content">
+                        <h3 className="card-title">{folder.name}</h3>
+                        <div className="card-stats">
+                          <span className="stat-item">
+                            <span className="stat-icon">👥</span>
+                            {studentCounts[folder.id] || 0} students
+                          </span>
+                        </div>
+                      </div>
+                      <div className="card-arrow">→</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           ) : showSubfolderDashboard ? (
             <SubfolderDashboard
               parentFolder={selectedFolder || null}
@@ -376,6 +503,16 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="header-actions-group">
                   {selectedFolderId && (
+                    <button
+                      className="activity-btn"
+                      onClick={() => handlePrintFolder(selectedFolderId)}
+                      title="Print this folder"
+                    >
+                      <span className="btn-icon">🖨️</span>
+                      Print Folder
+                    </button>
+                  )}
+                  {selectedFolderId && (
                     <button 
                       className="activity-btn" 
                       onClick={() => setShowActivities(!showActivities)}
@@ -386,7 +523,7 @@ const Dashboard: React.FC = () => {
                     </button>
                   )}
                   <button className="add-contact-btn" onClick={handleAddContact}>
-                    <span className="btn-icon">+</span>
+                    <span className="btn-icon">📁+</span>
                     Add Contact
                   </button>
                 </div>

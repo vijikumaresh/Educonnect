@@ -1,5 +1,5 @@
 # Frontend Dockerfile for Educonnect
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -14,23 +14,24 @@ COPY . .
 
 # Accept build-time environment variable
 ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_URL=https://registerstudentsapi.kattral.ai/api
 
 # Build the application
 RUN npm run build
 
-# Production stage with nginx
-FROM nginx:alpine
+# Runtime stage without nginx
+FROM node:20-alpine AS runner
 
-# Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy only what is needed to run the preview server
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/vite.config.ts ./vite.config.ts
 
-# Expose port
-EXPOSE 5174
+# Vite preview runtime port
+EXPOSE 6375
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
-
+# Serve built frontend assets
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "6375"]

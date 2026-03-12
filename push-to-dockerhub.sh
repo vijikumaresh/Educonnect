@@ -6,7 +6,7 @@
 # ============================================================================
 # CONFIGURATION - CHANGE THIS TO YOUR DOCKER HUB USERNAME
 # ============================================================================
-DOCKER_USERNAME="vijikumaresh"  # Your Docker Hub username
+DOCKER_USERNAME="svijikumaresh05"  # Your Docker Hub username
 
 # ============================================================================
 # Colors for output
@@ -79,10 +79,13 @@ echo ""
 
 # Login to Docker Hub
 print_header "🔐 STEP 1/5: Docker Hub Login"
+print_info "Please login to Docker Hub when prompted"
+print_info "Username: svijikumaresh05@gmail.com"
 if docker login; then
     print_success "Successfully logged in to Docker Hub"
 else
     print_error "Failed to login to Docker Hub"
+    print_info "You can also login manually with: docker login"
     exit 1
 fi
 echo ""
@@ -106,7 +109,7 @@ cd /home/pc3/Desktop/Educonnect/frontend || exit 1
 print_info "Building ${DOCKER_USERNAME}/educonnect-frontend:latest..."
 
 if docker build \
-    --build-arg VITE_API_URL=https://registerstudents.kattral.ai/api \
+    --build-arg VITE_API_URL=https://registerstudentsapi.kattral.ai \
     -t ${DOCKER_USERNAME}/educonnect-frontend:latest \
     .; then
     print_success "Frontend image built successfully"
